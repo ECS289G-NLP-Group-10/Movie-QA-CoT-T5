@@ -109,7 +109,7 @@ if __name__ == '__main__':
             model_predictions_encoded += model_predictions.tolist()
             target_encoded += encoded_targets.tolist()
 
-    f1, exact_match, bleu = _test_set.evaluate(
+    f1, exact_match, bleu, rouge_score = _test_set.evaluate(
         model_predictions_encoded, target_encoded)
     print(
-        f"\t Validation F1 = {f1:.2f}, EM = {exact_match:.2f}, BLEU = {bleu:.2f}")
+        f"\t Validation F1 = {f1:.2f}, EM = {exact_match:.2f}, BLEU = {bleu:.2f}, ROUGE = {rouge_score}")

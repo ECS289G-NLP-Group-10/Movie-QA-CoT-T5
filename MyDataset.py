@@ -6,6 +6,7 @@ import torch
 from tqdm import tqdm
 import nltk
 from nltk.translate.bleu_score import corpus_bleu
+from rouge import Rouge
 
 
 class DatasetMap():
@@ -107,6 +108,20 @@ class Dataset(torch.utils.data.Dataset):
         f1 = (2 * precision * recall) / (precision + recall)
         return f1
 
+    def __rouge_score(self, hyps, refs):
+        """_summary_
+
+        Args:
+            prediction (_type_): _description_
+            ground_truth (_type_): _description_
+
+        Returns:
+            _type_: _description_
+        """
+        rouge = Rouge()
+        scores = rouge.get_scores(hyps, refs, avg=True)
+        return scores
+
     def __bleu_score(self, references, predictions):
         """
         Compute BLEU score.
@@ -118,7 +133,10 @@ class Dataset(torch.utils.data.Dataset):
         Returns:
             bleu_score (float): BLEU score.
         """
-        return corpus_bleu(references, predictions)
+        references_split = [reference.split() for reference in references]
+        list_of_references = [[references]for references in references_split]
+        predictions_split = [prediction.split() for prediction in predictions]
+        return corpus_bleu(list_of_references, predictions_split, weights=(0.5, 0.5))
 
     def evaluate(self, predictions, gold_answers):
         """_summary_
@@ -131,10 +149,8 @@ class Dataset(torch.utils.data.Dataset):
             _type_: _description_
         """
         f1 = exact_match = 0
-        references = [[self.tokenizer.decode(
-            tokens, skip_special_tokens=True) for tokens in gold] for gold in gold_answers]
-        predictions_1 = [self.tokenizer.decode(
-            tokens, skip_special_tokens=True) for tokens in predictions]
+        hypotheses = []
+        references = []
         for ground_truths, prediction in tqdm(zip(gold_answers, predictions)):
             # Remove pad token
             tokens_to_remove = {
@@ -149,9 +165,18 @@ class Dataset(torch.utils.data.Dataset):
                 filter(lambda token: token not in tokens_to_remove, prediction))
             ground_truths = list(
                 filter(lambda token: token not in tokens_to_remove, ground_truths))
+            # Convert token IDs to tokens
+            hypothesis = self.tokenizer.decode(
+                prediction, skip_special_tokens=True)
+            reference = self.tokenizer.decode(
+                ground_truths, skip_special_tokens=True)
+            hypotheses.append(hypothesis)
+            references.append(reference)
             f1 += self.__f1_score(prediction, ground_truths)
             exact_match += self.__exact_match_score(prediction, ground_truths)
+
         # Compute BLEU score
-        # print(references, predictions_1)
-        bleu = self.__bleu_score(references, predictions_1)
-        return 100*f1/len(predictions), 100*exact_match/len(predictions), bleu
+        bleu = self.__bleu_score(references, hypotheses)
+        # Compute ROUGE
+        rouge_scores = self.__rouge_score(hypotheses, references)
+        return 100*f1/len(predictions), 100*exact_match/len(predictions), bleu, rouge_scores

@@ -144,11 +144,11 @@ def train(model: T5ForConditionalGeneration, tokenizer: PreTrainedTokenizer, opt
 
                 model_predictions_encoded += model_predictions.tolist()
                 target_encoded += encoded_targets.tolist()
-        f1, exact_match, bleu = validation_set.evaluate(
+        f1, exact_match, bleu, rouge_score = validation_set.evaluate(
             model_predictions_encoded, target_encoded)
 
         print(
-            f"\t Validation F1 = {f1:.2f}, EM = {exact_match:.2f}, BLEU = {bleu:.2f}")
+            f"\t Validation F1 = {f1:.2f}, EM = {exact_match:.2f}, BLEU = {bleu:.2f}, ROUGE = {rouge_score}")
         if f1 > f1_old:
             model.save_pretrained(
                 f'results/{model.name_or_path}/model/best-f1')
