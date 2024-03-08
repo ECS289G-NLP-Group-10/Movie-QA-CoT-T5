@@ -12,10 +12,6 @@ dataset_instruction = {
     "duorc": {
         "parser": MyDataset.DatasetMap.duorc,
         "test_set": "test"
-    },
-    "squad": {
-        "parser": MyDataset.DatasetMap.squad,
-        "test_set": "validation"
     }
 }
 

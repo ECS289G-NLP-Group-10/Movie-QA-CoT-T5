@@ -29,8 +29,8 @@ def parse_command_line_arguments():
     parser.add_argument('--lr', type=float, default=1e-4,
                         help='learning rate (Adam) (default: 1e-4)')
 
-    parser.add_argument('--workers', type=int, default=10,
-                        help='number of working units used to load the data (default: 10)')
+    parser.add_argument('--workers', type=int, default=2,
+                        help='number of working units used to load the data (default: 2)')
 
     parser.add_argument('--device', default='cuda:0', type=str,
                         help='device to be used for computations (in {cpu, cuda:0, cuda:1, ...}, default: cpu)')
