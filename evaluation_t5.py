@@ -21,8 +21,11 @@ def parse_command_line_arguments():
     parser = argparse.ArgumentParser(
         description='CLI for evaluating T5 T2T model')
 
-    parser.add_argument('--t5_model', type=str, default="results/t5-base/checkpoint-31",
+    parser.add_argument('--t5_model', type=str, default="results/t5-small",
                         help="What type of T5 model do you want use?")
+
+    parser.add_argument('--check_point', type=str, default="best-f1",
+                        help="What checkpoint do you want use?")
 
     parser.add_argument('--dataset', type=str, default='duorc-SelfRC',
                         help="Dataset to be used, if more level provided for the dataset use the '-' token, e.g. duorc-SelfRC")
@@ -30,8 +33,8 @@ def parse_command_line_arguments():
     parser.add_argument('--batch_size', type=int, default=16,
                         help='mini-batch size (default: 16)')
 
-    parser.add_argument('--workers', type=int, default=10,
-                        help='number of working units used to load the data (default: 10)')
+    parser.add_argument('--workers', type=int, default=2,
+                        help='number of working units used to load the data (default: 2)')
 
     parser.add_argument('--device', default='cuda', type=str,
                         help='device to be used for computations (in {cpu, cuda:0, cuda:1, ...}, default: cpu)')
@@ -61,8 +64,10 @@ if __name__ == '__main__':
     else:
         _data = load_dataset(name, dataset_info[1])
 
-    model = T5ForConditionalGeneration.from_pretrained(args.t5_model)
-    tokenizer = T5Tokenizer.from_pretrained(args.t5_model)
+    model = T5ForConditionalGeneration.from_pretrained(
+        args.t5_model+"/model/"+args.check_point)
+    tokenizer = T5Tokenizer.from_pretrained(
+        args.t5_model+"/tokenizer/"+args.check_point)
 
     _test_set = Dataset(_data[dataset_instruction[name]["test_set"]],
                         tokenizer, parser=dataset_instruction[name]["parser"])
