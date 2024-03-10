@@ -177,7 +177,8 @@ if __name__ == '__main__':
     # Set seed
     set_seed(args.seed)
 
-    validation_data = load_dataset("duorc", "SelfRC", split="validation")
+    validation_data = load_dataset(
+        "json", data_files={'train': 'CoT_val_format.json'})
     train_CoT_data = load_dataset(
         "json", data_files={'train': 'CoT_train_format.json'})
 
