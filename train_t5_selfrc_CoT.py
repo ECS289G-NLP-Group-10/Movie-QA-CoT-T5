@@ -177,7 +177,7 @@ if __name__ == '__main__':
     # Set seed
     set_seed(args.seed)
 
-    _data = load_dataset("duorc", "SelfRC")
+    validation_data = load_dataset("duorc", "SelfRC", split="validation")
     train_CoT_data = load_dataset(
         "json", data_files={'train': 'CoT_train_format.json'})
 
@@ -189,7 +189,7 @@ if __name__ == '__main__':
     train_set = Dataset(train_CoT_data["train"], tokenizer,
                         parser=MyDataset.DatasetMap.duorc)
     validation_set = Dataset(
-        _data["validation"], tokenizer, parser=MyDataset.DatasetMap.duorc)
+        validation_data, tokenizer, parser=MyDataset.DatasetMap.duorc)
 
     train(model=model,
           tokenizer=tokenizer,
