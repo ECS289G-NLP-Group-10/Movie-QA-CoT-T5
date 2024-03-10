@@ -20,8 +20,8 @@ def parse_command_line_arguments():
     parser.add_argument('--t5_model', type=str, default="t5-small",
                         help="What type of T5 model do you want use?")
 
-    parser.add_argument('--batch_size', type=int, default=16,
-                        help='mini-batch size (default: 16)')
+    parser.add_argument('--batch_size', type=int, default=4,
+                        help='mini-batch size (default: 4)')
 
     parser.add_argument('--epochs', type=int, default=10,
                         help='number of training epochs (default: 10)')
@@ -151,24 +151,25 @@ def train(model: T5ForConditionalGeneration, tokenizer: PreTrainedTokenizer, opt
             f"\t Validation F1 = {f1:.2f}, EM = {exact_match:.2f}, BLEU = {bleu:.2f}, ROUGE = {rouge_score}")
         if f1 > f1_old:
             model.save_pretrained(
-                f'results/{model.name_or_path}/model/best-f1')
+                f'results/{model.name_or_path}/model/best-f1-CoT')
             tokenizer.save_pretrained(
-                f'results/{model.name_or_path}/tokenizer/best-f1')
+                f'results/{model.name_or_path}/tokenizer/best-f1-CoT')
             f1_old = f1
         if epoch+1 % 10 == 0:
             model.save_pretrained(
-                f'results/{model.name_or_path}/model/checkpoint-{epoch+1}')
+                f'results/{model.name_or_path}/model/checkpoint-{epoch+1}-CoT')
             tokenizer.save_pretrained(
-                f'results/{model.name_or_path}/tokenizer/checkpoint-{epoch+1}')
+                f'results/{model.name_or_path}/tokenizer/checkpoint-{epoch+1}-CoT')
         model.train()
 
     model.save_pretrained(
-        f'results/{model.name_or_path}/model/checkpoint-{epoch+1}')
+        f'results/{model.name_or_path}/model/checkpoint-{epoch+1}-CoT')
     tokenizer.save_pretrained(
-        f'results/{model.name_or_path}/tokenizer/checkpoint-{epoch+1}')
+        f'results/{model.name_or_path}/tokenizer/checkpoint-{epoch+1}-CoT')
 
 
 if __name__ == '__main__':
+    torch.cuda.empty_cache()
     args = parse_command_line_arguments()
 
     for k, v in args.__dict__.items():
@@ -177,7 +178,7 @@ if __name__ == '__main__':
     # Set seed
     set_seed(args.seed)
 
-    _data = load_dataset("duorc", "SelfRC")
+    validation_data = load_dataset("duorc", "SelfRC", split="validation")
     train_CoT_data = load_dataset(
         "json", data_files={'train': 'CoT_train_format.json'})
 
@@ -189,7 +190,7 @@ if __name__ == '__main__':
     train_set = Dataset(train_CoT_data["train"], tokenizer,
                         parser=MyDataset.DatasetMap.duorc)
     validation_set = Dataset(
-        _data["validation"], tokenizer, parser=MyDataset.DatasetMap.duorc)
+        validation_data, tokenizer, parser=MyDataset.DatasetMap.duorc)
 
     train(model=model,
           tokenizer=tokenizer,
