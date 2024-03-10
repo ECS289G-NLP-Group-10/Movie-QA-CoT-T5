@@ -179,7 +179,7 @@ if __name__ == '__main__':
     set_seed(args.seed)
 
     validation_data = load_dataset(
-        "json", data_files={'train': 'CoT_val_format.json'})
+        "json", data_files={'validation': 'CoT_val_format.json'})
     train_CoT_data = load_dataset(
         "json", data_files={'train': 'CoT_train_format.json'})
 
@@ -191,7 +191,7 @@ if __name__ == '__main__':
     train_set = Dataset(train_CoT_data["train"], tokenizer,
                         parser=MyDataset.DatasetMap.duorc)
     validation_set = Dataset(
-        validation_data, tokenizer, parser=MyDataset.DatasetMap.duorc)
+        validation_data["validation"], tokenizer, parser=MyDataset.DatasetMap.duorc)
 
     train(model=model,
           tokenizer=tokenizer,

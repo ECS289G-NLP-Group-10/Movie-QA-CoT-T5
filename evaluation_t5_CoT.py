@@ -64,12 +64,12 @@ if __name__ == '__main__':
     # else:
     #     _data = load_dataset(name, dataset_info[1])
     test_data = load_dataset(
-        "json", data_files={'train': 'CoT_test_format.json'})
+        "json", data_files={'test': 'CoT_test_format.json'})
     model = T5ForConditionalGeneration.from_pretrained(
         args.t5_model+"/model/"+args.check_point)
     tokenizer = T5Tokenizer.from_pretrained(
         args.t5_model+"/tokenizer/"+args.check_point)
-    _test_set = Dataset(test_data,
+    _test_set = Dataset(test_data["test"],
                         tokenizer, parser=dataset_instruction[name]["parser"])
     # _test_set = Dataset(_data[dataset_instruction[name]["test_set"]],
     #                     tokenizer, parser=dataset_instruction[name]["parser"])
