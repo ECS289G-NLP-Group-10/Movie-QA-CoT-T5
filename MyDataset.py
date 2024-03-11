@@ -172,6 +172,7 @@ class Dataset(torch.utils.data.Dataset):
                 ground_truths, skip_special_tokens=True)
             hypotheses.append(hypothesis)
             references.append(reference)
+            print(hypothesis, reference)
             f1 += self.__f1_score(prediction, ground_truths)
             exact_match += self.__exact_match_score(prediction, ground_truths)
 
