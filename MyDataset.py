@@ -7,6 +7,7 @@ from tqdm import tqdm
 import nltk
 from nltk.translate.bleu_score import corpus_bleu
 from rouge import Rouge
+import re
 
 
 class DatasetMap():
@@ -170,8 +171,30 @@ class Dataset(torch.utils.data.Dataset):
                 prediction, skip_special_tokens=True)
             reference = self.tokenizer.decode(
                 ground_truths, skip_special_tokens=True)
-            hypotheses.append(hypothesis)
-            references.append(reference)
+
+            pattern = r'-->(.*?)END'
+            # Define the pattern
+            # Find all matches
+            # Extract the desired text
+            h_extracted_text = ""
+            r_extracted_text = ""
+            h_matches = re.findall(pattern, hypothesis, re.DOTALL)
+            r_matches = re.findall(pattern, reference, re.DOTALL)
+            if h_matches:
+                h_extracted_text = h_matches[0].strip()
+                print(h_extracted_text)
+            else:
+                print("No h match found.")
+            if r_matches:
+                r_extracted_text = r_matches[0].strip()
+                print(r_extracted_text)
+            else:
+                print("No r match found.")
+            hypotheses.append(h_extracted_text)
+            references.append(r_extracted_text)
+            # hypotheses.append(hypothesis)
+            # references.append(reference)
+
             print(f"hypthesis: {hypothesis}")
             print("\n")
             print(f"reference: {reference}")
