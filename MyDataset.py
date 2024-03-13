@@ -173,9 +173,6 @@ class Dataset(torch.utils.data.Dataset):
                 ground_truths, skip_special_tokens=True)
 
             pattern = r'-->(.*?)END'
-            # Define the pattern
-            # Find all matches
-            # Extract the desired text
             h_extracted_text = ""
             r_extracted_text = ""
             h_matches = re.findall(pattern, hypothesis, re.DOTALL)
@@ -184,23 +181,33 @@ class Dataset(torch.utils.data.Dataset):
                 h_extracted_text = h_matches[0].strip()
                 print(h_extracted_text)
             else:
+                h_extracted_text = hypothesis
                 print("No h match found.")
             if r_matches:
                 r_extracted_text = r_matches[0].strip()
                 print(r_extracted_text)
             else:
+                r_extracted_text = reference
                 print("No r match found.")
             hypotheses.append(h_extracted_text)
             references.append(r_extracted_text)
+            # Convert tokens to IDs
+            extracted_hypothesis_ids = self.tokenizer.encode(
+                h_extracted_text, add_special_tokens=False)
+            extracted__reference_ids = self.tokenizer.encode(
+                r_extracted_text, add_special_tokens=False)
+            f1 += self.__f1_score(extracted_hypothesis_ids,
+                                  extracted__reference_ids)
+            exact_match += self.__exact_match_score(
+                extracted_hypothesis_ids, extracted__reference_ids)
             # hypotheses.append(hypothesis)
             # references.append(reference)
-
             print(f"hypthesis: {hypothesis}")
             print("\n")
             print(f"reference: {reference}")
             print("\n")
-            f1 += self.__f1_score(prediction, ground_truths)
-            exact_match += self.__exact_match_score(prediction, ground_truths)
+            # f1 += self.__f1_score(prediction, ground_truths)
+            # exact_match += self.__exact_match_score(prediction, ground_truths)
 
         # Compute BLEU score
         bleu = self.__bleu_score(references, hypotheses)
